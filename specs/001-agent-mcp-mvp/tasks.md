@@ -44,19 +44,20 @@
 
 **Goal**: Agent calls the `echo` tool on the `localsearch` MCP server with valid input and receives the structured `{file, start_line, end_line, snippet}` payload back — conforming to the constitution's mandated result schema.
 
-**Independent Test**: Run `python -m src.agent "Use the echo tool to echo the message 'hello world'"` — agent should print a response referencing the `snippet` and `file` fields. Run `uv run pytest tests/unit/ tests/contract/` — all pass without subprocess.
+**Independent Test**: Run `python -m src.agent "Use the echo tool to echo the message 'hello world'"` — agent should print a response referencing the `snippet` and `file` fields. Run `uv run pytest tests/unit/ tests/contract/` — all pass using real subprocess transport.
 
 ### Implementation for User Story 1
 
 - [x] T008 [P] [US1] Add `echo` tool to `src/server/__main__.py` — typed `message: str` param, returns `{"file": "stdin", "start_line": 1, "end_line": 1, "snippet": message}` (constitution-mandated result schema), description ≤3 sentences, stderr-only logging
 - [x] T009 [P] [US1] Create `src/agent/main.py` — `run(prompt: str) -> str` async function using `claude_agent_sdk.query()` with `ClaudeAgentOptions(mcp_servers={"localsearch": {...}}, allowed_tools=["mcp__localsearch__*"])`; check `SystemMessage(subtype="init")` for connection status (stub — error-raising behavior added in T015); extract `ResultMessage` for output (no `__main__` block — entry point is `src/agent/__main__.py`, added in T018)
 - [x] T010 [US1] Implement `src/agent/__init__.py` — expose `run` for programmatic use (import from `main.py`)
-- [x] T011 [US1] Verify FastMCP auto-validation rejects empty `message` string via `minLength: 1` in input schema (no manual guard needed — FastMCP returns MCP error `-32602` automatically from type annotation constraints)
-- [x] T012 [P] [US1] Write unit test `tests/unit/test_server_tools.py` — use `fastmcp.Client(mcp)` in-memory (no subprocess): test `echo` returns all four constitution-mandated fields (`file`, `start_line`, `end_line`, `snippet`) for valid input, and returns `is_error=True` for empty string input
-- [x] T013 [P] [US1] Write contract test `tests/contract/test_tool_schema.py` — validate that FastMCP-generated tool input/output schemas match `contracts/tool-schema.json` definitions for `ToolInput`, `ToolResult`, and `ToolError`
-- [x] T013b [US1] Add sequential tool call test to `tests/unit/test_server_tools.py` — call `echo` twice in sequence via `fastmcp.Client` and verify each result maps to its input (covers FR-005: agent correctly associates each result with its request; sequential guarantee documented in spec.md Assumptions)
+- [x] T011 [US1] Verify FastMCP auto-validation rejects empty `message` string via `minLength: 1` in input schema — covered by T012's `is_error=True` test case; no standalone artifact needed (regression caught by real subprocess test)
+- [ ] T018 [US1] Add `src/agent/__main__.py` — entry point that calls `asyncio.run(run(sys.argv[1]))` and prints result; this is the SOLE entry point for `python -m src.agent` (Python routes `-m pkg` to `__main__.py`, not to `main.py`'s `if __name__` block); required for the Phase 3 checkpoint independent test
+- [x] T012 [P] [US1] Write integration test `tests/unit/test_server_tools.py` — start MCP server as a real subprocess (real stdio transport, no fakes or in-memory clients): test `echo` returns all four result fields (`file`, `start_line`, `end_line`, `snippet`) for valid input, and returns `is_error=True` for empty string input
+- [x] T013 [P] [US1] Write contract test `tests/contract/test_tool_schema.py` — start MCP server as a real subprocess, call `list_tools()` over stdio transport, and assert the returned tool schema for `echo` matches the `ToolInput`, `ToolResult`, and `ToolError` definitions in `contracts/tool-schema.json`; no static file comparison without a live server connection
+- [x] T013b [US1] Add sequential tool call test to `tests/unit/test_server_tools.py` — call `echo` twice in sequence via real subprocess MCP client and verify each result maps to its input (covers FR-005; sequential guarantee documented in spec.md Assumptions)
 
-**Checkpoint**: User Story 1 fully functional — agent calls `echo`, receives constitution-schema result (`{file, start_line, end_line, snippet}`), unit + contract tests pass
+**Checkpoint**: User Story 1 fully functional — `python -m src.agent` runs via `__main__.py` (T018), agent calls `echo`, receives result (`{file, start_line, end_line, snippet}`), subprocess-based tests pass
 
 ---
 
@@ -84,10 +85,8 @@
 
 ### Implementation for User Story 3
 
-- [ ] T017 [US3] In `src/agent/__main__.py` (entry point, not library) — after `run()` returns, print the tool name called and result fields to stdout; `run()` in `main.py` MUST remain a pure function that returns a string (callers handle display); depends on T018
-- [ ] T018 [US3] Add `src/agent/__main__.py` — entry point that calls `asyncio.run(run(sys.argv[1]))` and prints result; this is the SOLE entry point for `python -m src.agent` (Python routes `-m pkg` to `__main__.py`, not to `main.py`'s `if __name__` block); required for US1 independent test and `quickstart.md` step 3
+- [ ] T017 [US3] Update `src/agent/__main__.py` (created in T018) — after `run()` returns, print the tool name called and result fields to stdout; `run()` in `main.py` MUST remain a pure function that returns a string (callers handle display); depends on T018
 - [ ] T019 [US3] Validate `quickstart.md` step 2 (server smoke test command) against actual `src/server/__main__.py` implementation — update command if server name or init output differs
-- [ ] T020 [US3] Confirm benchmark baseline from T016 is committed in `tests/integration/test_agent_mcp.py` and SC-002 (≤5s) assertion passes in `uv run pytest`; no new code — validation only
 
 **Checkpoint**: All three user stories independently functional; quickstart validated; full `uv run pytest` passes
 
@@ -112,7 +111,7 @@
 - **Foundational (Phase 2)**: Depends on Phase 1 completion — **BLOCKS all user stories**
 - **User Story 1 (Phase 3)**: Depends on Phase 2 — MVP core capability
 - **User Story 2 (Phase 4)**: Depends on Phase 3 (shares `src/agent/main.py`) — extends agent error handling
-- **User Story 3 (Phase 5)**: Depends on Phase 3 — adds `src/agent/__main__.py` entry point (T018, required for `python -m src.agent` to work) and DX validation
+- **User Story 3 (Phase 5)**: Depends on Phase 3 — adds output formatting to `__main__.py` (T017, depends on T018 from Phase 3) and DX validation
 - **Polish (Phase 6)**: Depends on all user story phases complete
 
 ### User Story Dependencies
@@ -133,7 +132,7 @@
 - T003 + T004 can run in parallel (different `__init__.py` files)
 - T008 + T009 can run in parallel (different files: `server/__main__.py` vs `agent/main.py`)
 - T012 + T013 can run in parallel (different test files)
-- T016 + T017 can run in parallel (different files)
+- T017 depends on T018 (not parallel — T017 modifies the file T018 creates)
 - T021 + T022 can run in parallel (different concerns)
 
 ---
@@ -144,7 +143,7 @@
 # These tasks can run simultaneously (different files):
 Task T008: "Add echo tool to src/server/__main__.py"
 Task T009: "Create src/agent/main.py with query() loop"
-Task T012: "Write unit tests in tests/unit/test_server_tools.py"
+Task T012: "Write subprocess integration tests in tests/unit/test_server_tools.py"
 Task T013: "Write contract tests in tests/contract/test_tool_schema.py"
 
 # Then sequentially:
@@ -174,7 +173,7 @@ Task T011: "Add input validation to echo tool"
 
 ### Suggested MVP Scope
 
-**Phase 1 + Phase 2 + Phase 3 only** — 14 tasks total (T001–T013b). This delivers the core capability (US1): agent calls `echo`, receives `{file, start_line, end_line, snippet}`, unit + contract tests pass. No integration tests, no error-path hardening — those come in US2.
+**Phase 1 + Phase 2 + Phase 3 only** — 15 tasks total (T001–T018). This delivers the core capability (US1): agent calls `echo` via `python -m src.agent`, receives `{file, start_line, end_line, snippet}`, subprocess-based tests pass. No error-path hardening — that comes in US2.
 
 ---
 
@@ -184,6 +183,6 @@ Task T011: "Add input validation to echo tool"
 - [Story] label maps each task to its user story for traceability
 - **No `print()` in `src/server/`** — stdout is the MCP protocol stream; use `sys.stderr` exclusively
 - **Tool naming**: server name `"localsearch"` + tool `echo` → fully-qualified `mcp__localsearch__echo`
-- **FastMCP import**: unit tests import `from fastmcp import Client`; server uses `from mcp.server.fastmcp import FastMCP`
+- **FastMCP import**: tests start a real subprocess; server uses `from mcp.server.fastmcp import FastMCP`; no in-memory `Client(server)` usage (Principle VI)
 - Commit after each phase checkpoint to preserve working state
 - Stop at any checkpoint to validate independently before proceeding
