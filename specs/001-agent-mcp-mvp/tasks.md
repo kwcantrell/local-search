@@ -48,13 +48,13 @@
 
 ### Implementation for User Story 1
 
-- [ ] T008 [P] [US1] Add `echo` tool to `src/server/__main__.py` — typed `message: str` param, returns `{"file": "stdin", "start_line": 1, "end_line": 1, "snippet": message}` (constitution-mandated result schema), description ≤3 sentences, stderr-only logging
-- [ ] T009 [P] [US1] Create `src/agent/main.py` — `run(prompt: str) -> str` async function using `claude_agent_sdk.query()` with `ClaudeAgentOptions(mcp_servers={"localsearch": {...}}, allowed_tools=["mcp__localsearch__*"])`; check `SystemMessage(subtype="init")` for connection status (stub — error-raising behavior added in T015); extract `ResultMessage` for output (no `__main__` block — entry point is `src/agent/__main__.py`, added in T018)
-- [ ] T010 [US1] Implement `src/agent/__init__.py` — expose `run` for programmatic use (import from `main.py`)
-- [ ] T011 [US1] Verify FastMCP auto-validation rejects empty `message` string via `minLength: 1` in input schema (no manual guard needed — FastMCP returns MCP error `-32602` automatically from type annotation constraints)
-- [ ] T012 [P] [US1] Write unit test `tests/unit/test_server_tools.py` — use `fastmcp.Client(mcp)` in-memory (no subprocess): test `echo` returns all four constitution-mandated fields (`file`, `start_line`, `end_line`, `snippet`) for valid input, and returns `is_error=True` for empty string input
-- [ ] T013 [P] [US1] Write contract test `tests/contract/test_tool_schema.py` — validate that FastMCP-generated tool input/output schemas match `contracts/tool-schema.json` definitions for `ToolInput`, `ToolResult`, and `ToolError`
-- [ ] T013b [US1] Add sequential tool call test to `tests/unit/test_server_tools.py` — call `echo` twice in sequence via `fastmcp.Client` and verify each result maps to its input (covers FR-005: agent correctly associates each result with its request; sequential guarantee documented in spec.md Assumptions)
+- [x] T008 [P] [US1] Add `echo` tool to `src/server/__main__.py` — typed `message: str` param, returns `{"file": "stdin", "start_line": 1, "end_line": 1, "snippet": message}` (constitution-mandated result schema), description ≤3 sentences, stderr-only logging
+- [x] T009 [P] [US1] Create `src/agent/main.py` — `run(prompt: str) -> str` async function using `claude_agent_sdk.query()` with `ClaudeAgentOptions(mcp_servers={"localsearch": {...}}, allowed_tools=["mcp__localsearch__*"])`; check `SystemMessage(subtype="init")` for connection status (stub — error-raising behavior added in T015); extract `ResultMessage` for output (no `__main__` block — entry point is `src/agent/__main__.py`, added in T018)
+- [x] T010 [US1] Implement `src/agent/__init__.py` — expose `run` for programmatic use (import from `main.py`)
+- [x] T011 [US1] Verify FastMCP auto-validation rejects empty `message` string via `minLength: 1` in input schema (no manual guard needed — FastMCP returns MCP error `-32602` automatically from type annotation constraints)
+- [x] T012 [P] [US1] Write unit test `tests/unit/test_server_tools.py` — use `fastmcp.Client(mcp)` in-memory (no subprocess): test `echo` returns all four constitution-mandated fields (`file`, `start_line`, `end_line`, `snippet`) for valid input, and returns `is_error=True` for empty string input
+- [x] T013 [P] [US1] Write contract test `tests/contract/test_tool_schema.py` — validate that FastMCP-generated tool input/output schemas match `contracts/tool-schema.json` definitions for `ToolInput`, `ToolResult`, and `ToolError`
+- [x] T013b [US1] Add sequential tool call test to `tests/unit/test_server_tools.py` — call `echo` twice in sequence via `fastmcp.Client` and verify each result maps to its input (covers FR-005: agent correctly associates each result with its request; sequential guarantee documented in spec.md Assumptions)
 
 **Checkpoint**: User Story 1 fully functional — agent calls `echo`, receives constitution-schema result (`{file, start_line, end_line, snippet}`), unit + contract tests pass
 
