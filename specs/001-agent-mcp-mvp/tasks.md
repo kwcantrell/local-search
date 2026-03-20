@@ -69,9 +69,9 @@
 
 ### Implementation for User Story 2
 
-- [ ] T014 [US2] Update `src/agent/main.py` — catch `CLIConnectionError` and `ProcessError` from `claude_agent_sdk`; re-raise with human-readable message; enforce agent-level timeout (default 60s) via `asyncio.wait_for` or SDK option
-- [ ] T015 [US2] Update `src/agent/main.py` — check `SystemMessage(subtype="init")` for failed MCP server connections (`status != "connected"`); raise `RuntimeError` listing failed servers immediately (no silent pass-through)
-- [ ] T016 [P] [US2] Write integration test `tests/integration/test_agent_mcp.py` — subprocess end-to-end: (a) valid `echo` call succeeds and all four schema fields correct; (b) call to non-existent tool surfaces error; (c) empty-string input surfaces `-32602` error; (d) assert round-trip latency < 5s (SC-002) and commit baseline value as a comment in the test file
+- [x] T014 [US2] Update `src/agent/main.py` — catch `CLIConnectionError` and `ProcessError` from `claude_agent_sdk`; re-raise with human-readable message; enforce agent-level timeout (default 60s) via `asyncio.wait_for` or SDK option
+- [x] T015 [US2] Update `src/agent/main.py` — check `SystemMessage(subtype="init")` for failed MCP server connections (`status != "connected"`); raise `RuntimeError` listing failed servers immediately (no silent pass-through)
+- [x] T016 [P] [US2] Write integration test `tests/integration/test_agent_mcp.py` — subprocess end-to-end: (a) valid `echo` call succeeds and all four schema fields correct; (b) call to non-existent tool surfaces error; (c) empty-string input surfaces `-32602` error; (d) assert round-trip latency < 5s (SC-002) and commit baseline value as a comment in the test file
 
 **Checkpoint**: User Story 2 fully functional — all three failure modes surface structured errors, integration tests pass
 
