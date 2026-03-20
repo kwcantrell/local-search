@@ -17,10 +17,10 @@
 
 **Purpose**: Project initialization — directory layout, dependency manifest, tooling config
 
-- [ ] T001 Create project directory structure: `src/server/`, `src/agent/`, `tests/unit/`, `tests/integration/`, `tests/contract/`
-- [ ] T002 Create `pyproject.toml` with Python 3.11, `mcp`, `claude-agent-sdk`, `pytest`, `pytest-asyncio` dependencies, `[project.scripts]` entry point for `src.server`, and `[tool.ruff]` linting config (constitution §Development Workflow requires linter config in Phase 1 Setup)
-- [ ] T003 [P] Create `src/server/__init__.py` and `src/agent/__init__.py` (empty package markers)
-- [ ] T004 [P] Create `tests/__init__.py`, `tests/unit/__init__.py`, `tests/integration/__init__.py`, `tests/contract/__init__.py` (empty package markers)
+- [x] T001 Create project directory structure: `src/server/`, `src/agent/`, `tests/unit/`, `tests/integration/`, `tests/contract/`
+- [x] T002 Create `pyproject.toml` with Python 3.11, `mcp`, `claude-agent-sdk`, `pytest`, `pytest-asyncio` dependencies, `[project.scripts]` entry point for `src.server`, and `[tool.ruff]` linting config (constitution §Development Workflow requires linter config in Phase 1 Setup)
+- [x] T003 [P] Create `src/server/__init__.py` and `src/agent/__init__.py` (empty package markers)
+- [x] T004 [P] Create `tests/__init__.py`, `tests/unit/__init__.py`, `tests/integration/__init__.py`, `tests/contract/__init__.py` (empty package markers)
 
 **Checkpoint**: Project structure and linting config in place — run `ruff check src/ tests/` (should pass on empty files) before proceeding
 
