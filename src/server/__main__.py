@@ -1,11 +1,15 @@
+import os
 import sys
+import time
 from contextlib import asynccontextmanager
 
 import anyio
 from mcp.server.fastmcp import FastMCP
+from mcp.types import INVALID_PARAMS
 from pydantic import Field
 
 import src.server.monitor as _monitor
+from src.server.monitor import McpFileHandler, MonitoredEntry
 
 
 @asynccontextmanager
@@ -50,6 +54,53 @@ def echo(message: str = Field(..., min_length=1)) -> dict:
     """
     print("tool=echo status=ok", file=sys.stderr)
     return {"result": message, "status": "ok"}
+
+
+@mcp.tool()
+def register_files(paths: list[str]) -> dict:
+    """Register one or more file or directory paths for monitoring.
+
+    Invalid or non-existent paths are reported per-path without rejecting the whole list.
+    Duplicate paths are deduplicated silently.
+    """
+    if not paths:
+        from mcp.shared.exceptions import McpError
+        raise McpError(INVALID_PARAMS, "paths must contain at least one entry")
+
+    registered = []
+    already_monitored = []
+    errors = []
+
+    for raw_path in paths:
+        path = os.path.abspath(raw_path)
+        if path in _monitor._registry:
+            already_monitored.append(path)
+            continue
+        if not os.path.exists(path):
+            errors.append({"path": path, "reason": "path does not exist"})
+            continue
+        kind = "dir" if os.path.isdir(path) else "file"
+        handler = McpFileHandler()
+        watch = _monitor._observer.schedule(handler, path, recursive=(kind == "dir"))
+        entry = MonitoredEntry(path=path, kind=kind, registered_at=time.time(), watch=watch)
+        _monitor._registry[path] = entry
+        registered.append(path)
+
+    return {"registered": registered, "already_monitored": already_monitored, "errors": errors}
+
+
+@mcp.tool()
+def list_monitored() -> dict:
+    """Return the current list of all paths registered for monitoring.
+
+    Returns an empty list if nothing is registered.
+    """
+    return {
+        "monitored": [
+            {"path": e.path, "kind": e.kind, "registered_at": e.registered_at}
+            for e in _monitor._registry.values()
+        ]
+    }
 
 
 if __name__ == "__main__":

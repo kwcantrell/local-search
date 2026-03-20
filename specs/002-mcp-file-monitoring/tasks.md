@@ -54,13 +54,13 @@ description: "Task list for MCP File Monitoring feature implementation"
 
 ### Tests for User Story 1
 
-- [ ] T009 [P] [US1] Add contract schema tests for `register_files` and `list_monitored` tools in `tests/contract/test_tool_schema.py` — verify tool names, parameter types (`paths: list[str]`), and required response keys against contracts/mcp-tools.md
-- [ ] T010 [P] [US1] Write integration tests in `tests/integration/test_register.py`: test valid path registration, invalid path reporting (path does not exist → appears in `errors`), duplicate path deduplication (second call → `already_monitored`), and empty-list error (`INVALID_PARAMS`)
+- [X] T009 [P] [US1] Add contract schema tests for `register_files` and `list_monitored` tools in `tests/contract/test_tool_schema.py` — verify tool names, parameter types (`paths: list[str]`), and required response keys against contracts/mcp-tools.md
+- [X] T010 [P] [US1] Write integration tests in `tests/integration/test_register.py`: test valid path registration, invalid path reporting (path does not exist → appears in `errors`), duplicate path deduplication (second call → `already_monitored`), and empty-list error (`INVALID_PARAMS`)
 
 ### Implementation for User Story 1
 
-- [ ] T011 [US1] Implement `register_files(paths: list[str])` tool in `src/server/__main__.py`: normalize each path via `os.path.abspath`, check `os.path.exists`, reject empty list with `INVALID_PARAMS` MCP error, add valid new paths to `_registry` (create `MonitoredEntry`), schedule `watchdog.Observer.schedule(McpFileHandler(), path, recursive=kind=="dir")`, return `{"registered": [...], "already_monitored": [...], "errors": [...]}`
-- [ ] T012 [US1] Implement `list_monitored()` tool in `src/server/__main__.py`: return `{"monitored": [{"path": e.path, "kind": e.kind, "registered_at": e.registered_at} for e in _registry.values()]}`
+- [X] T011 [US1] Implement `register_files(paths: list[str])` tool in `src/server/__main__.py`: normalize each path via `os.path.abspath`, check `os.path.exists`, reject empty list with `INVALID_PARAMS` MCP error, add valid new paths to `_registry` (create `MonitoredEntry`), schedule `watchdog.Observer.schedule(McpFileHandler(), path, recursive=kind=="dir")`, return `{"registered": [...], "already_monitored": [...], "errors": [...]}`
+- [X] T012 [US1] Implement `list_monitored()` tool in `src/server/__main__.py`: return `{"monitored": [{"path": e.path, "kind": e.kind, "registered_at": e.registered_at} for e in _registry.values()]}`
 
 **Checkpoint**: User Story 1 is fully functional. `register_files` + `list_monitored` work end-to-end via real MCP subprocess. Run `tests/integration/test_register.py` to validate independently.
 
