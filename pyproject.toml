@@ -9,6 +9,7 @@ requires-python = ">=3.11"
 dependencies = [
     "mcp",
     "claude-agent-sdk",
+    "watchdog>=4.0",
 ]
 
 [project.optional-dependencies]
