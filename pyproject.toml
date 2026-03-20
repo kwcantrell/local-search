@@ -21,6 +21,9 @@ dev = [
 [project.scripts]
 localsearch = "src.server.__main__:main"
 
+[tool.hatch.build.targets.wheel]
+packages = ["src"]
+
 [tool.pytest.ini_options]
 asyncio_mode = "auto"
 

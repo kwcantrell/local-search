@@ -32,9 +32,9 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T005 Create `src/server/__main__.py` — bootstrap `FastMCP("localsearch")` instance and call `mcp.run(transport="stdio")` in `__main__` block; no tools yet
-- [ ] T006 Create `.mcp.json` at repo root — static MCP server config pointing to `python -m src.server` so the SDK auto-loads the server
-- [ ] T007 Create `pytest.ini` or `[tool.pytest.ini_options]` in `pyproject.toml` — set `asyncio_mode = "auto"` for `pytest-asyncio`
+- [x] T005 Create `src/server/__main__.py` — bootstrap `FastMCP("localsearch")` instance and call `mcp.run(transport="stdio")` in `__main__` block; no tools yet
+- [x] T006 Create `.mcp.json` at repo root — static MCP server config pointing to `python -m src.server` so the SDK auto-loads the server
+- [x] T007 Create `pytest.ini` or `[tool.pytest.ini_options]` in `pyproject.toml` — set `asyncio_mode = "auto"` for `pytest-asyncio`
 
 **Checkpoint**: Foundation ready — FastMCP server boots, MCP config registered, pytest async configured
 
