@@ -13,7 +13,7 @@ def echo(message: str = Field(..., min_length=1)) -> dict:
     Returns a dict with 'result' (the echoed message) and 'status' ('ok').
     Requires a non-empty message string.
     """
-    print(f"echo called with message={message!r}", file=sys.stderr)
+    print("tool=echo status=ok", file=sys.stderr)
     return {"result": message, "status": "ok"}
 
 

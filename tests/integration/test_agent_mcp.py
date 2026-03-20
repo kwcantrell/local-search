@@ -6,8 +6,6 @@ SC-002 budget: 30s per call (set conservatively above baseline).
 
 import time
 
-import pytest
-
 from src.agent.main import run
 
 
@@ -27,8 +25,11 @@ async def test_nonexistent_tool_surfaces_error():
     # Agent should report a tool-not-found or error condition
     assert result, "Expected non-empty result string"
     lower = result.lower()
+    error_keywords = (
+        "not found", "doesn't exist", "no tool", "error", "unable", "cannot", "can't"
+    )
     assert any(
-        kw in lower for kw in ("not found", "doesn't exist", "no tool", "error", "unable", "cannot", "can't")
+        kw in lower for kw in error_keywords
     ), f"Expected error indication in result, got: {result!r}"
 
 
@@ -39,8 +40,9 @@ async def test_empty_string_input_surfaces_error():
     )
     assert result, "Expected non-empty result string"
     lower = result.lower()
+    error_keywords = ("-32602", "invalid", "error", "empty", "validation", "required")
     assert any(
-        kw in lower for kw in ("-32602", "invalid", "error", "empty", "validation", "required")
+        kw in lower for kw in error_keywords
     ), f"Expected validation error indication in result, got: {result!r}"
 
 

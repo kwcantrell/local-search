@@ -85,8 +85,8 @@
 
 ### Implementation for User Story 3
 
-- [ ] T017 [US3] Update `src/agent/__main__.py` (created in T018) — after `run()` returns, print the tool name called and result fields to stdout; `run()` in `main.py` MUST remain a pure function that returns a string (callers handle display); depends on T018
-- [ ] T019 [US3] Validate `quickstart.md` step 2 (server smoke test command) against actual `src/server/__main__.py` implementation — update command if server name or init output differs
+- [x] T017 [US3] Update `src/agent/__main__.py` (created in T018) — after `run()` returns, print the tool name called and result fields to stdout; `run()` in `main.py` MUST remain a pure function that returns a string (callers handle display); depends on T018
+- [x] T019 [US3] Validate `quickstart.md` step 2 (server smoke test command) against actual `src/server/__main__.py` implementation — update command if server name or init output differs
 
 **Checkpoint**: All three user stories independently functional; quickstart validated; full `uv run pytest` passes
 
@@ -96,10 +96,10 @@
 
 **Purpose**: Hardening, observability, and final validation across all stories
 
-- [ ] T021 [P] Add stderr logging to `src/server/__main__.py` using `sys.stderr` — log each tool invocation name and result status (not payload) for observability; confirm no stdout pollution
-- [ ] T022 [P] Run `ruff check src/ tests/` and fix all violations (ruff config already in `pyproject.toml` from T002; this task enforces a clean lint pass before final commit)
-- [ ] T023 Run full `uv run pytest` — confirm all unit, contract, and integration tests pass; fix any failures
-- [ ] T024 Verify quickstart.md end-to-end in clean shell — confirm SC-004 (≤10 min setup) is met; update troubleshooting table if new failure modes discovered
+- [x] T021 [P] Add stderr logging to `src/server/__main__.py` using `sys.stderr` — log each tool invocation name and result status (not payload) for observability; confirm no stdout pollution
+- [x] T022 [P] Run `ruff check src/ tests/` and fix all violations (ruff config already in `pyproject.toml` from T002; this task enforces a clean lint pass before final commit)
+- [x] T023 Run full `uv run pytest` — confirm all unit, contract, and integration tests pass; fix any failures
+- [x] T024 Verify quickstart.md end-to-end in clean shell — confirm SC-004 (≤10 min setup) is met; update troubleshooting table if new failure modes discovered
 
 ---
 

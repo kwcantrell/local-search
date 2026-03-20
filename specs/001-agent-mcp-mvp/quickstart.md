@@ -19,22 +19,23 @@ This installs `mcp`, `claude-agent-sdk`, `pytest`, and `pytest-asyncio` from `py
 ## 2. Verify the MCP server starts
 
 ```bash
-echo '{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2024-11-05","capabilities":{},"clientInfo":{"name":"test","version":"0"}}}' | python -m src.server
+echo '{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2024-11-05","capabilities":{},"clientInfo":{"name":"test","version":"0"}}}' | uv run python -m src.server
 ```
 
-You should see an MCP `initialize` response on stdout within 1 second. Press Ctrl-C to stop.
+You should see an MCP `initialize` response (JSON with `"serverInfo":{"name":"localsearch",...}`) on stdout within 1 second.
 
 ## 3. Run the agent
 
 ```bash
 export ANTHROPIC_API_KEY=<your key>
-python -m src.agent "Use the echo tool to echo the message 'hello world' and tell me the result."
+uv run python -m src.agent "Use the echo tool to echo the message 'hello world' and tell me the result."
 ```
 
 Expected output (approximately):
 
 ```
-The echo tool returned: result='hello world', status='ok'
+Tool called: mcp__localsearch__echo
+Result: The echo tool returned the message 'hello world' with status 'ok'.
 ```
 
 ## 4. Run the tests
@@ -44,9 +45,9 @@ uv run pytest
 ```
 
 All three test suites run:
-- **Unit** (`tests/unit/`) — in-memory FastMCP client, no subprocess
-- **Contract** (`tests/contract/`) — tool schema validation
-- **Integration** (`tests/integration/`) — full subprocess end-to-end
+- **Unit** (`tests/unit/`) — real subprocess MCP client, tool behaviour tests
+- **Contract** (`tests/contract/`) — tool schema validation via real subprocess
+- **Integration** (`tests/integration/`) — full agent end-to-end via subprocess
 
 Expected: all tests pass, round-trip latency printed for the integration test.
 
@@ -54,7 +55,7 @@ Expected: all tests pass, round-trip latency printed for the integration test.
 
 Call a non-existent tool:
 ```bash
-python -m src.agent "Call the tool called 'nonexistent' on the localsearch MCP server."
+uv run python -m src.agent "Call the tool called 'nonexistent' on the localsearch MCP server."
 ```
 
 Expected: agent surfaces a clear error message — no hang, no crash.
