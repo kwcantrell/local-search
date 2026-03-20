@@ -1,0 +1,77 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$comment": "Canonical schema for the MCP tool contract used in this MVP. All tools exposed by the localsearch MCP server must conform to these input/output shapes.",
+
+  "definitions": {
+    "ToolInput": {
+      "title": "ToolInput",
+      "description": "Input parameters for the echo tool.",
+      "type": "object",
+      "required": ["message"],
+      "additionalProperties": false,
+      "properties": {
+        "message": {
+          "type": "string",
+          "minLength": 1,
+          "description": "The string to echo back."
+        }
+      }
+    },
+
+    "ToolResult": {
+      "title": "ToolResult",
+      "description": "Successful structured result returned by the echo tool. The agent can reference individual fields by name.",
+      "type": "object",
+      "required": ["result", "status"],
+      "additionalProperties": false,
+      "properties": {
+        "result": {
+          "type": "string",
+          "description": "The echoed message."
+        },
+        "status": {
+          "type": "string",
+          "enum": ["ok"],
+          "description": "Operation status indicator."
+        }
+      }
+    },
+
+    "ToolError": {
+      "title": "ToolError",
+      "description": "Structured MCP error response returned when a tool call fails.",
+      "type": "object",
+      "required": ["code", "message"],
+      "properties": {
+        "code": {
+          "type": "integer",
+          "description": "MCP JSON-RPC error code. -32602=invalid params, -32601=method not found, -32000=server error."
+        },
+        "message": {
+          "type": "string",
+          "description": "Human-readable error description."
+        },
+        "data": {
+          "description": "Optional structured error context (e.g., validation details)."
+        }
+      }
+    },
+
+    "MCPContentBlock": {
+      "title": "MCPContentBlock",
+      "description": "A single content block within a tool result. For structured dict returns, type is always 'text' and text is a JSON-encoded object.",
+      "type": "object",
+      "required": ["type", "text"],
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["text"]
+        },
+        "text": {
+          "type": "string",
+          "description": "JSON-encoded ToolResult object."
+        }
+      }
+    }
+  }
+}
