@@ -1,23 +1,22 @@
 <!--
 SYNC IMPACT REPORT
 ==================
-Version change: 1.1.0 → 1.2.0 (minor — demo tool exemption added to result schema rule)
-Modified principles: none
-Modified sections:
-  - Technical Standards › Result schema: added exemption clause for demo/validation
-    tools whose sole purpose is to verify the agent-MCP integration loop.
-    Triggered by: 001-agent-mcp-mvp analysis finding C2 — the `echo` demo tool
-    cannot conform to the search result schema without violating Principle II
-    (Simplicity). Exemption is scoped and documented to prevent misuse.
-Added sections: none
+Version change: 1.2.0 → 1.3.0 (minor — new testing discipline principle added)
+Modified principles: none renamed
+Added sections:
+  - Core Principles › VI. End-to-End Testing Discipline (new principle)
+    Triggered by: user directive to avoid mock tests in favor of end-to-end
+    behavioral validation. Mocks mask real integration failures and increase
+    long-term maintenance burden.
 Removed sections: none
 Templates reviewed:
   - .specify/templates/plan-template.md      ✅ compatible — Constitution Check gates unchanged
   - .specify/templates/spec-template.md      ✅ compatible — no affected sections
-  - .specify/templates/tasks-template.md     ✅ compatible — no affected sections
+  - .specify/templates/tasks-template.md     ✅ updated — testing note updated to reflect
+    no-mock policy and end-to-end preference
   - .specify/templates/agent-file-template.md ✅ compatible — no conflicts
 Deferred TODOs: none
-Previous amendment: 1.0.0 → 1.1.0 (Development Workflow linting rule)
+Previous amendment: 1.1.0 → 1.2.0 (demo tool exemption in result schema)
 -->
 
 # LocalSearch Constitution
@@ -81,6 +80,19 @@ results recorded before any change to the search or index pipeline is merged.
 **Rationale**: Token efficiency is meaningless if latency forces agents to
 time out or retry. Performance is a first-class correctness requirement.
 
+### VI. End-to-End Testing Discipline (NON-NEGOTIABLE)
+
+Tests MUST validate real, observable behavior through the full system stack.
+Mock-based tests are PROHIBITED. Unit tests that substitute real dependencies
+with mocks or fakes MUST NOT be introduced; they mask integration failures and
+create a false sense of correctness. All tests MUST exercise actual components:
+real file I/O, real MCP transport, real subprocess calls, real async execution.
+
+**Rationale**: Mock tests pass while production breaks. This project has a
+narrow, well-defined integration surface (MCP stdio/SSE + file system); the
+cost of running real end-to-end tests is low and the confidence gain is high.
+Mocks add maintenance burden without commensurate safety.
+
 ## Technical Standards
 
 - **Transport**: MCP stdio or SSE transport; no custom protocols.
@@ -104,8 +116,9 @@ time out or retry. Performance is a first-class correctness requirement.
 
 ## Development Workflow
 
-- All new tool handlers MUST have at least one integration test that validates
-  the token-efficient result schema.
+- All new tool handlers MUST have at least one end-to-end integration test that
+  validates real behavior through the MCP transport layer. Mock-based tests are
+  PROHIBITED (see Principle VI).
 - Benchmark baselines MUST be committed alongside any change to the index or
   search pipeline (see Principle V).
 - Constitution compliance MUST be checked in the plan-template "Constitution
@@ -115,7 +128,8 @@ time out or retry. Performance is a first-class correctness requirement.
   recorded in the Complexity Tracking table of the relevant plan.md with
   explicit justification.
 - Code review MUST verify: no blocking I/O, no full-file token dumps, result
-  schema completeness, and simplicity rationale for any new abstraction.
+  schema completeness, simplicity rationale for any new abstraction, and
+  absence of mock-based tests.
 - All code MUST pass the relevant linters and formatters after every major edit
   and before any commit to source control. No commit may introduce linting or
   formatting violations. Linter and formatter configuration MUST be established
@@ -141,4 +155,4 @@ LocalSearch project. Amendments require:
 Non-compliance found in review MUST be resolved before merge; waivers are not
 permitted without a formal amendment.
 
-**Version**: 1.2.0 | **Ratified**: 2026-03-20 | **Last Amended**: 2026-03-20
+**Version**: 1.3.0 | **Ratified**: 2026-03-20 | **Last Amended**: 2026-03-20
