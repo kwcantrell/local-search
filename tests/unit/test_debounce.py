@@ -7,8 +7,6 @@ SC-004: Multiple rapid events for the same path within the debounce window must
 produce exactly one ChangeEvent in _event_buffer (last-write-wins coalescing).
 """
 
-import time
-from collections import deque
 
 import anyio
 import pytest
@@ -61,7 +59,7 @@ def reset_monitor_state(tmp_path):
 
 
 async def test_rapid_events_coalesced_to_one(reset_monitor_state):
-    """SC-004: N rapid events for the same path within the window → exactly 1 ChangeEvent."""
+    """SC-004: N rapid events for the same path within the window → 1 ChangeEvent."""
     tmp_path = reset_monitor_state
     file_path = str(tmp_path / "watched.txt")
 

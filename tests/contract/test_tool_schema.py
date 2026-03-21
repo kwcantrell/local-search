@@ -105,7 +105,8 @@ async def test_register_files_input_schema():
 
 async def test_register_files_response_keys():
     """register_files must return registered, already_monitored, and errors keys."""
-    import tempfile, os
+    import os
+    import tempfile
 
     async with create_connected_server_and_client_session(mcp) as client:
         with tempfile.NamedTemporaryFile(delete=False) as f:
@@ -115,7 +116,9 @@ async def test_register_files_response_keys():
             assert not result.isError
             parsed = json.loads(result.content[0].text)
             assert "registered" in parsed, "response must have 'registered' key"
-            assert "already_monitored" in parsed, "response must have 'already_monitored' key"
+            assert "already_monitored" in parsed, (
+                "response must have 'already_monitored' key"
+            )
             assert "errors" in parsed, "response must have 'errors' key"
         finally:
             os.unlink(tmp_path)
@@ -201,7 +204,8 @@ async def test_deregister_files_input_schema():
 
 async def test_deregister_files_response_keys():
     """deregister_files must return deregistered and not_monitored keys."""
-    import tempfile, os
+    import os
+    import tempfile
 
     async with create_connected_server_and_client_session(mcp) as client:
         with tempfile.NamedTemporaryFile(delete=False) as f:

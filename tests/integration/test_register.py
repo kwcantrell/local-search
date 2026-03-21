@@ -8,7 +8,6 @@ import json
 import os
 import tempfile
 
-import pytest
 from mcp.shared.memory import create_connected_server_and_client_session
 
 from src.server.__main__ import mcp
@@ -71,12 +70,16 @@ async def test_register_duplicate_path_appears_in_already_monitored():
     try:
         async with create_connected_server_and_client_session(mcp) as client:
             # First registration
-            data1, err1 = await call_tool(client, "register_files", {"paths": [tmp_path]})
+            data1, err1 = await call_tool(
+                client, "register_files", {"paths": [tmp_path]}
+            )
             assert err1 is None
             assert tmp_path in data1["registered"]
 
             # Second registration (duplicate)
-            data2, err2 = await call_tool(client, "register_files", {"paths": [tmp_path]})
+            data2, err2 = await call_tool(
+                client, "register_files", {"paths": [tmp_path]}
+            )
             assert err2 is None
             assert tmp_path in data2["already_monitored"]
             assert data2["registered"] == []

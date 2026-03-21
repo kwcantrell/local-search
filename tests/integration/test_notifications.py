@@ -10,7 +10,6 @@ import os
 import tempfile
 import time
 
-import pytest
 from mcp.shared.memory import create_connected_server_and_client_session
 
 from src.server.__main__ import mcp
@@ -42,7 +41,7 @@ async def test_poll_events_always_returns_both_keys():
 
 
 async def test_file_modify_produces_notification():
-    """File modification triggers a notification visible via poll_events within 2s (SC-002)."""
+    """File modification triggers a notification via poll_events within 2s (SC-002)."""
     with tempfile.NamedTemporaryFile(delete=False, suffix=".txt") as f:
         tmp_path = os.path.abspath(f.name)
         f.write(b"initial content")
@@ -78,7 +77,9 @@ async def test_file_modify_produces_notification():
                     found_event = matching[0]
                     break
 
-        assert found_event is not None, "Expected a notification for the modified file within 2s"
+        assert found_event is not None, (
+            "Expected a notification for the modified file within 2s"
+        )
         assert found_event["event_type"] in ("modified", "created", "deleted", "moved")
         assert found_event["timestamp"] > before_ts
     finally:
@@ -129,7 +130,7 @@ async def test_file_delete_produces_deletion_event():
 
 
 async def test_rapid_writes_coalesced_to_one_event():
-    """50 rapid writes within debounce window produce exactly 1 coalesced event (SC-004)."""
+    """50 rapid writes within debounce window → exactly 1 coalesced event (SC-004)."""
     with tempfile.NamedTemporaryFile(delete=False, suffix=".txt") as f:
         tmp_path = os.path.abspath(f.name)
 
@@ -157,7 +158,8 @@ async def test_rapid_writes_coalesced_to_one_event():
 
         matching = [e for e in poll_data["events"] if e["path"] == tmp_path]
         assert len(matching) == 1, (
-            f"Expected exactly 1 coalesced event for 50 rapid writes, got {len(matching)}"
+            f"Expected exactly 1 coalesced event for 50 rapid writes, "
+            f"got {len(matching)}"
         )
     finally:
         os.unlink(tmp_path)
@@ -229,4 +231,6 @@ async def test_poll_events_sorted_ascending_by_timestamp():
 
     assert poll_err is None
     timestamps = [e["timestamp"] for e in poll_data["events"]]
-    assert timestamps == sorted(timestamps), "Events must be sorted by ascending timestamp"
+    assert timestamps == sorted(timestamps), (
+        "Events must be sorted by ascending timestamp"
+    )

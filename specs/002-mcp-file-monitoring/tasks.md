@@ -132,10 +132,10 @@ description: "Task list for MCP File Monitoring feature implementation"
 
 **Purpose**: Environment variable configuration, linting, quickstart validation.
 
-- [ ] T021 [P] Verify `DEBOUNCE_WINDOW_SECS`, `EVENT_BUFFER_MAXLEN`, `EVENT_QUEUE_MAXSIZE` env vars are read at module import time in `src/server/debounce.py` and `src/server/monitor.py` with correct defaults (0.5, 1000, 256) per quickstart.md
-- [ ] T022 [P] Run `ruff check src/ tests/` and fix all lint errors
-- [ ] T023 Run full test suite `pytest tests/ -v` from `/workspace` and confirm all tests pass
-- [ ] T024 Validate quickstart.md scenarios manually: start server standalone (`python -m src.server`), run agent with file monitoring prompt, verify `register_files` → file change → `poll_events` round-trip works end-to-end
+- [X] T021 [P] Verify `DEBOUNCE_WINDOW_SECS`, `EVENT_BUFFER_MAXLEN`, `EVENT_QUEUE_MAXSIZE` env vars are read at module import time in `src/server/debounce.py` and `src/server/monitor.py` with correct defaults (0.5, 1000, 256) per quickstart.md
+- [X] T022 [P] Run `ruff check src/ tests/` and fix all lint errors
+- [X] T023 Run full test suite `pytest tests/ -v` from `/workspace` and confirm all tests pass
+- [X] T024 Validate quickstart.md scenarios manually: start server standalone (`python -m src.server`), run agent with file monitoring prompt, verify `register_files` → file change → `poll_events` round-trip works end-to-end
 
 ---
 

@@ -15,14 +15,15 @@ from src.server.monitor import McpFileHandler, MonitoredEntry
 @asynccontextmanager
 async def lifespan(app):
     """Start watchdog observer and debounce task; stop them on shutdown."""
-    from src.server.debounce import debounce_task
     from watchdog.observers import Observer
+
+    from src.server.debounce import debounce_task
 
     # Reset global state for clean startup (important in test environments)
     _monitor._registry.clear()
     _monitor._event_buffer.clear()
 
-    # Reinitialize streams and observer each time (threads/streams can only be used once)
+    # Reinitialize streams and observer each time (streams can only be used once)
     import anyio as _anyio
     send, recv = _anyio.create_memory_object_stream(
         max_buffer_size=_monitor.EVENT_QUEUE_MAXSIZE
@@ -60,7 +61,8 @@ def echo(message: str = Field(..., min_length=1)) -> dict:
 def register_files(paths: list[str]) -> dict:
     """Register one or more file or directory paths for monitoring.
 
-    Invalid or non-existent paths are reported per-path without rejecting the whole list.
+    Invalid or non-existent paths are reported per-path without rejecting the
+    whole list.
     Duplicate paths are deduplicated silently.
     """
     if not paths:
@@ -82,11 +84,17 @@ def register_files(paths: list[str]) -> dict:
         kind = "dir" if os.path.isdir(path) else "file"
         handler = McpFileHandler()
         watch = _monitor._observer.schedule(handler, path, recursive=(kind == "dir"))
-        entry = MonitoredEntry(path=path, kind=kind, registered_at=time.time(), watch=watch)
+        entry = MonitoredEntry(
+            path=path, kind=kind, registered_at=time.time(), watch=watch
+        )
         _monitor._registry[path] = entry
         registered.append(path)
 
-    return {"registered": registered, "already_monitored": already_monitored, "errors": errors}
+    return {
+        "registered": registered,
+        "already_monitored": already_monitored,
+        "errors": errors,
+    }
 
 
 @mcp.tool()
@@ -105,7 +113,10 @@ def list_monitored() -> dict:
 
 @mcp.tool()
 def deregister_files(paths: list[str]) -> dict:
-    """Remove one or more paths from monitoring. Paths not currently monitored are acknowledged without error."""
+    """Remove one or more paths from monitoring.
+
+    Paths not currently monitored are acknowledged without error.
+    """
     if not paths:
         from mcp.shared.exceptions import McpError
         raise McpError(INVALID_PARAMS, "paths must contain at least one entry")

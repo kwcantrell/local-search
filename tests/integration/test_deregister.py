@@ -9,7 +9,6 @@ import os
 import tempfile
 
 import anyio
-import pytest
 from mcp.shared.memory import create_connected_server_and_client_session
 
 from src.server.__main__ import mcp
@@ -67,7 +66,7 @@ async def test_deregister_stops_notifications():
 
 
 async def test_deregister_unknown_path_returns_not_monitored():
-    """Deregistering a path that was never registered returns it in not_monitored, no error."""
+    """Deregistering a path that was never registered returns it in not_monitored."""
     never_registered = os.path.abspath("/tmp/never_registered_xyz_12345.txt")
 
     async with create_connected_server_and_client_session(mcp) as client:
@@ -81,7 +80,7 @@ async def test_deregister_unknown_path_returns_not_monitored():
 
 
 async def test_deregister_then_reregister_works():
-    """A file can be deregistered and then re-registered; it appears in list_monitored."""
+    """A file can be deregistered and re-registered; it appears in list_monitored."""
     with tempfile.NamedTemporaryFile(delete=False, suffix=".txt") as f:
         tmp_path = os.path.abspath(f.name)
         f.write(b"content")
@@ -120,7 +119,7 @@ async def test_deregister_then_reregister_works():
 
 
 async def test_deregister_empty_list_returns_invalid_params():
-    """Calling deregister_files with an empty list returns an MCP error (isError=True)."""
+    """Calling deregister_files with empty list returns an MCP error (isError=True)."""
     async with create_connected_server_and_client_session(mcp) as client:
         result = await client.call_tool("deregister_files", {"paths": []})
 
