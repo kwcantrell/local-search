@@ -124,7 +124,7 @@ description: "Task list for MCP File Monitoring feature implementation"
 
 **Purpose**: Validate debounce algorithm directly without MCP subprocess overhead. Uses real asyncio + anyio MemoryObjectStream. No mocks.
 
-- [ ] T020 Write `tests/unit/test_debounce.py`: test that N rapid events for the same path within debounce window produce exactly 1 `ChangeEvent` in `_event_buffer` (SC-004); test last-write-wins coalescing (`modified → deleted` → event_type is `"deleted"`); test that events for unregistered paths are filtered out; test that idle debounce task does not spin (no spurious flushes)
+- [X] T020 Write `tests/unit/test_debounce.py`: test that N rapid events for the same path within debounce window produce exactly 1 `ChangeEvent` in `_event_buffer` (SC-004); test last-write-wins coalescing (`modified → deleted` → event_type is `"deleted"`); test that events for unregistered paths are filtered out; test that idle debounce task does not spin (no spurious flushes)
 
 ---
 
