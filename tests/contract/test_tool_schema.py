@@ -143,3 +143,36 @@ async def test_list_monitored_response_keys():
     parsed = json.loads(result.content[0].text)
     assert "monitored" in parsed, "response must have 'monitored' key"
     assert isinstance(parsed["monitored"], list), "monitored must be a list"
+
+
+# --- US2: poll_events contract schema tests ---
+
+
+async def test_poll_events_tool_registered():
+    """poll_events tool must be registered in FastMCP."""
+    tools = await _get_tools()
+    assert "poll_events" in tools, "poll_events tool must be registered"
+
+
+async def test_poll_events_input_schema():
+    """poll_events must accept since_ts: float as required parameter."""
+    tools = await _get_tools()
+    schema = tools["poll_events"].inputSchema
+    props = schema.get("properties", {})
+    assert "since_ts" in props, "poll_events must have 'since_ts' parameter"
+    since_ts_schema = props["since_ts"]
+    assert since_ts_schema["type"] == "number", "since_ts must be type number"
+    assert "since_ts" in schema.get("required", []), "since_ts must be required"
+
+
+async def test_poll_events_response_keys():
+    """poll_events must return events and count keys."""
+    async with create_connected_server_and_client_session(mcp) as client:
+        result = await client.call_tool("poll_events", {"since_ts": 0.0})
+    assert not result.isError
+    parsed = json.loads(result.content[0].text)
+    assert "events" in parsed, "response must have 'events' key"
+    assert "count" in parsed, "response must have 'count' key"
+    assert isinstance(parsed["events"], list), "events must be a list"
+    assert isinstance(parsed["count"], int), "count must be an int"
+    assert parsed["count"] == len(parsed["events"]), "count must equal len(events)"

@@ -103,5 +103,19 @@ def list_monitored() -> dict:
     }
 
 
+@mcp.tool()
+def poll_events(since_ts: float) -> dict:
+    """Return all file change events that occurred after the given timestamp.
+
+    Call repeatedly to drain the event stream. Pass since_ts=0.0 on first call
+    to receive all buffered events. Returns events sorted by ascending timestamp.
+    """
+    events = [
+        e for e in _monitor._event_buffer if e["timestamp"] > since_ts
+    ]
+    events.sort(key=lambda e: e["timestamp"])
+    return {"events": events, "count": len(events)}
+
+
 if __name__ == "__main__":
     mcp.run(transport="stdio")

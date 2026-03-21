@@ -74,12 +74,12 @@ description: "Task list for MCP File Monitoring feature implementation"
 
 ### Tests for User Story 2
 
-- [ ] T013 [P] [US2] Add contract schema test for `poll_events` tool in `tests/contract/test_tool_schema.py` — verify `since_ts: float` parameter and response keys (`events`, `count`) per contracts/mcp-tools.md
-- [ ] T014 [P] [US2] Write integration tests in `tests/integration/test_notifications.py`: test file modify → notification received within 2s (SC-002); file delete → deletion event; 50 rapid writes within debounce window → exactly 1 coalesced event (SC-004); `poll_events(since_ts=last_ts)` → no duplicate events
+- [X] T013 [P] [US2] Add contract schema test for `poll_events` tool in `tests/contract/test_tool_schema.py` — verify `since_ts: float` parameter and response keys (`events`, `count`) per contracts/mcp-tools.md
+- [X] T014 [P] [US2] Write integration tests in `tests/integration/test_notifications.py`: test file modify → notification received within 2s (SC-002); file delete → deletion event; 50 rapid writes within debounce window → exactly 1 coalesced event (SC-004); `poll_events(since_ts=last_ts)` → no duplicate events
 
 ### Implementation for User Story 2
 
-- [ ] T015 [US2] Implement `poll_events(since_ts: float)` tool in `src/server/__main__.py`: scan `_event_buffer` for events with `timestamp > since_ts`, return `{"events": [...], "count": N}` with events sorted by ascending timestamp; always return both keys even when empty
+- [X] T015 [US2] Implement `poll_events(since_ts: float)` tool in `src/server/__main__.py`: scan `_event_buffer` for events with `timestamp > since_ts`, return `{"events": [...], "count": N}` with events sorted by ascending timestamp; always return both keys even when empty
 
 **Checkpoint**: User Story 2 fully functional. File changes flow from watchdog → bridge → debounce → buffer → `poll_events`. Run `tests/integration/test_notifications.py` to validate independently.
 
