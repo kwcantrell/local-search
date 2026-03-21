@@ -74,3 +74,150 @@ async def test_echo_tool_input_schema_via_fastmcp():
     assert "message" in input_schema.get("properties", {})
     assert input_schema.get("required") is not None
     assert "message" in input_schema["required"]
+
+
+# --- US1: register_files and list_monitored contract schema tests ---
+
+
+async def _get_tools():
+    async with create_connected_server_and_client_session(mcp) as client:
+        tools_result = await client.list_tools()
+    return {t.name: t for t in tools_result.tools}
+
+
+async def test_register_files_tool_registered():
+    """register_files tool must be registered in FastMCP."""
+    tools = await _get_tools()
+    assert "register_files" in tools, "register_files tool must be registered"
+
+
+async def test_register_files_input_schema():
+    """register_files must accept paths: list[str] as required parameter."""
+    tools = await _get_tools()
+    schema = tools["register_files"].inputSchema
+    props = schema.get("properties", {})
+    assert "paths" in props, "register_files must have 'paths' parameter"
+    paths_schema = props["paths"]
+    assert paths_schema["type"] == "array", "paths must be type array"
+    assert paths_schema["items"]["type"] == "string", "paths items must be type string"
+    assert "paths" in schema.get("required", []), "paths must be required"
+
+
+async def test_register_files_response_keys():
+    """register_files must return registered, already_monitored, and errors keys."""
+    import os
+    import tempfile
+
+    async with create_connected_server_and_client_session(mcp) as client:
+        with tempfile.NamedTemporaryFile(delete=False) as f:
+            tmp_path = f.name
+        try:
+            result = await client.call_tool("register_files", {"paths": [tmp_path]})
+            assert not result.isError
+            parsed = json.loads(result.content[0].text)
+            assert "registered" in parsed, "response must have 'registered' key"
+            assert "already_monitored" in parsed, (
+                "response must have 'already_monitored' key"
+            )
+            assert "errors" in parsed, "response must have 'errors' key"
+        finally:
+            os.unlink(tmp_path)
+
+
+async def test_list_monitored_tool_registered():
+    """list_monitored tool must be registered in FastMCP."""
+    tools = await _get_tools()
+    assert "list_monitored" in tools, "list_monitored tool must be registered"
+
+
+async def test_list_monitored_input_schema():
+    """list_monitored must accept no required parameters."""
+    tools = await _get_tools()
+    schema = tools["list_monitored"].inputSchema
+    required = schema.get("required", [])
+    assert required == [], "list_monitored must have no required parameters"
+
+
+async def test_list_monitored_response_keys():
+    """list_monitored must return monitored key with a list."""
+    async with create_connected_server_and_client_session(mcp) as client:
+        result = await client.call_tool("list_monitored", {})
+    assert not result.isError
+    parsed = json.loads(result.content[0].text)
+    assert "monitored" in parsed, "response must have 'monitored' key"
+    assert isinstance(parsed["monitored"], list), "monitored must be a list"
+
+
+# --- US2: poll_events contract schema tests ---
+
+
+async def test_poll_events_tool_registered():
+    """poll_events tool must be registered in FastMCP."""
+    tools = await _get_tools()
+    assert "poll_events" in tools, "poll_events tool must be registered"
+
+
+async def test_poll_events_input_schema():
+    """poll_events must accept since_ts: float as required parameter."""
+    tools = await _get_tools()
+    schema = tools["poll_events"].inputSchema
+    props = schema.get("properties", {})
+    assert "since_ts" in props, "poll_events must have 'since_ts' parameter"
+    since_ts_schema = props["since_ts"]
+    assert since_ts_schema["type"] == "number", "since_ts must be type number"
+    assert "since_ts" in schema.get("required", []), "since_ts must be required"
+
+
+async def test_poll_events_response_keys():
+    """poll_events must return events and count keys."""
+    async with create_connected_server_and_client_session(mcp) as client:
+        result = await client.call_tool("poll_events", {"since_ts": 0.0})
+    assert not result.isError
+    parsed = json.loads(result.content[0].text)
+    assert "events" in parsed, "response must have 'events' key"
+    assert "count" in parsed, "response must have 'count' key"
+    assert isinstance(parsed["events"], list), "events must be a list"
+    assert isinstance(parsed["count"], int), "count must be an int"
+    assert parsed["count"] == len(parsed["events"]), "count must equal len(events)"
+
+
+# --- US3: deregister_files contract schema tests ---
+
+
+async def test_deregister_files_tool_registered():
+    """deregister_files tool must be registered in FastMCP."""
+    tools = await _get_tools()
+    assert "deregister_files" in tools, "deregister_files tool must be registered"
+
+
+async def test_deregister_files_input_schema():
+    """deregister_files must accept paths: list[str] as required parameter."""
+    tools = await _get_tools()
+    schema = tools["deregister_files"].inputSchema
+    props = schema.get("properties", {})
+    assert "paths" in props, "deregister_files must have 'paths' parameter"
+    paths_schema = props["paths"]
+    assert paths_schema["type"] == "array", "paths must be type array"
+    assert paths_schema["items"]["type"] == "string", "paths items must be type string"
+    assert "paths" in schema.get("required", []), "paths must be required"
+
+
+async def test_deregister_files_response_keys():
+    """deregister_files must return deregistered and not_monitored keys."""
+    import os
+    import tempfile
+
+    async with create_connected_server_and_client_session(mcp) as client:
+        with tempfile.NamedTemporaryFile(delete=False) as f:
+            tmp_path = f.name
+        try:
+            # Register first
+            await client.call_tool("register_files", {"paths": [tmp_path]})
+            # Now deregister
+            result = await client.call_tool("deregister_files", {"paths": [tmp_path]})
+            assert not result.isError
+            parsed = json.loads(result.content[0].text)
+            assert "deregistered" in parsed, "response must have 'deregistered' key"
+            assert "not_monitored" in parsed, "response must have 'not_monitored' key"
+        finally:
+            os.unlink(tmp_path)
