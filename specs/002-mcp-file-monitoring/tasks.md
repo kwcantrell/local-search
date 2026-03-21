@@ -114,7 +114,7 @@ description: "Task list for MCP File Monitoring feature implementation"
 
 ### Tests for User Story 4
 
-- [ ] T019 [P] [US4] Write integration tests in `tests/integration/test_register.py` (extend existing file): test `list_monitored` returns all registered paths after multiple registrations; test `list_monitored` returns empty list when nothing registered; test `kind` field is `"file"` for files and `"dir"` for directories
+- [X] T019 [P] [US4] Write integration tests in `tests/integration/test_register.py` (extend existing file): test `list_monitored` returns all registered paths after multiple registrations; test `list_monitored` returns empty list when nothing registered; test `kind` field is `"file"` for files and `"dir"` for directories
 
 **Checkpoint**: User Story 4 validated. `list_monitored` handles both populated and empty registries correctly.
 
