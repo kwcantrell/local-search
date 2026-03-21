@@ -93,12 +93,12 @@ description: "Task list for MCP File Monitoring feature implementation"
 
 ### Tests for User Story 3
 
-- [ ] T016 [P] [US3] Add contract schema test for `deregister_files` tool in `tests/contract/test_tool_schema.py` — verify `paths: list[str]` parameter and response keys (`deregistered`, `not_monitored`)
-- [ ] T017 [P] [US3] Write integration tests in `tests/integration/test_deregister.py`: test deregister stops notifications (file change after deregister → no event); test deregister of unknown path → `not_monitored` list, no MCP error; test deregister then re-register same path works correctly
+- [X] T016 [P] [US3] Add contract schema test for `deregister_files` tool in `tests/contract/test_tool_schema.py` — verify `paths: list[str]` parameter and response keys (`deregistered`, `not_monitored`)
+- [X] T017 [P] [US3] Write integration tests in `tests/integration/test_deregister.py`: test deregister stops notifications (file change after deregister → no event); test deregister of unknown path → `not_monitored` list, no MCP error; test deregister then re-register same path works correctly
 
 ### Implementation for User Story 3
 
-- [ ] T018 [US3] Implement `deregister_files(paths: list[str])` tool in `src/server/__main__.py`: normalize each path via `os.path.abspath`, reject empty list with `INVALID_PARAMS`; for each path in `_registry` cancel the watchdog watch (`_observer.unschedule(watch)`) and remove from `_registry`; paths not in registry go to `not_monitored`; return `{"deregistered": [...], "not_monitored": [...]}`
+- [X] T018 [US3] Implement `deregister_files(paths: list[str])` tool in `src/server/__main__.py`: normalize each path via `os.path.abspath`, reject empty list with `INVALID_PARAMS`; for each path in `_registry` cancel the watchdog watch (`_observer.unschedule(watch)`) and remove from `_registry`; paths not in registry go to `not_monitored`; return `{"deregistered": [...], "not_monitored": [...]}`
 
 **Checkpoint**: User Story 3 fully functional. Deregistration stops watchdog watch and prevents future events. Run `tests/integration/test_deregister.py` independently.
 

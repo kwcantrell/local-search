@@ -104,6 +104,29 @@ def list_monitored() -> dict:
 
 
 @mcp.tool()
+def deregister_files(paths: list[str]) -> dict:
+    """Remove one or more paths from monitoring. Paths not currently monitored are acknowledged without error."""
+    if not paths:
+        from mcp.shared.exceptions import McpError
+        raise McpError(INVALID_PARAMS, "paths must contain at least one entry")
+
+    deregistered = []
+    not_monitored = []
+
+    for raw_path in paths:
+        path = os.path.abspath(raw_path)
+        if path in _monitor._registry:
+            entry = _monitor._registry.pop(path)
+            if entry.watch is not None:
+                _monitor._observer.unschedule(entry.watch)
+            deregistered.append(path)
+        else:
+            not_monitored.append(path)
+
+    return {"deregistered": deregistered, "not_monitored": not_monitored}
+
+
+@mcp.tool()
 def poll_events(since_ts: float) -> dict:
     """Return all file change events that occurred after the given timestamp.
 

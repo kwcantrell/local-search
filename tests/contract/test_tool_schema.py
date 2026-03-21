@@ -176,3 +176,44 @@ async def test_poll_events_response_keys():
     assert isinstance(parsed["events"], list), "events must be a list"
     assert isinstance(parsed["count"], int), "count must be an int"
     assert parsed["count"] == len(parsed["events"]), "count must equal len(events)"
+
+
+# --- US3: deregister_files contract schema tests ---
+
+
+async def test_deregister_files_tool_registered():
+    """deregister_files tool must be registered in FastMCP."""
+    tools = await _get_tools()
+    assert "deregister_files" in tools, "deregister_files tool must be registered"
+
+
+async def test_deregister_files_input_schema():
+    """deregister_files must accept paths: list[str] as required parameter."""
+    tools = await _get_tools()
+    schema = tools["deregister_files"].inputSchema
+    props = schema.get("properties", {})
+    assert "paths" in props, "deregister_files must have 'paths' parameter"
+    paths_schema = props["paths"]
+    assert paths_schema["type"] == "array", "paths must be type array"
+    assert paths_schema["items"]["type"] == "string", "paths items must be type string"
+    assert "paths" in schema.get("required", []), "paths must be required"
+
+
+async def test_deregister_files_response_keys():
+    """deregister_files must return deregistered and not_monitored keys."""
+    import tempfile, os
+
+    async with create_connected_server_and_client_session(mcp) as client:
+        with tempfile.NamedTemporaryFile(delete=False) as f:
+            tmp_path = f.name
+        try:
+            # Register first
+            await client.call_tool("register_files", {"paths": [tmp_path]})
+            # Now deregister
+            result = await client.call_tool("deregister_files", {"paths": [tmp_path]})
+            assert not result.isError
+            parsed = json.loads(result.content[0].text)
+            assert "deregistered" in parsed, "response must have 'deregistered' key"
+            assert "not_monitored" in parsed, "response must have 'not_monitored' key"
+        finally:
+            os.unlink(tmp_path)
